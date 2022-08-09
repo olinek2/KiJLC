@@ -13,7 +13,11 @@ ref_ignore = ["TP", "T", "NT", "REF***", "G", "H"]
 def parse_pcb(fn):
     pcb_fn = str(Path(fn).with_suffix("")) + ".kicad_pcb"
     board = pcbnew.LoadBoard(pcb_fn)
-    modules = board.GetModules()
+    if hasattr(board, 'GetModules'):
+        modules = board.GetModules()
+    else:
+        modules = board.GetFootprints()
+    #modules = board.GetModules()
 
     for mod in modules:
         ref = mod.GetReference()
@@ -30,7 +34,7 @@ def write_bom(fn, components):
             for o in comp:
                 designators += o["ref"] + " "
             bw.writerow([comp[0]["value"], designators.rstrip(),
-                        comp[0]["jlc"], comp[0]["lcsc"]])
+                        comp[0]["footprint"], comp[0]["jlc"]])
 
 
 # input files
